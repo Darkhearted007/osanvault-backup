@@ -1,0 +1,2 @@
+# ÒsánVault static-site build dependencies
+requests>=2.32,<3
