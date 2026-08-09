@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OsanVault Referrals v1",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["userId", "referrals", "netEarned"],
+    "properties": {
+      "userId": {"type": "string"},
+      "referrals": {"type": "integer", "minimum": 0},
+      "netEarned": {"type": "number"}
+    },
+    "additionalProperties": false
+  }
+}

@@ -27,7 +27,7 @@
     <button onclick="connectWallet()">Connect Wallet</button>
     <div id="wallet-address">Wallet: Not connected</div>
     <div id="net-balance">NET Balance: 0</div>
-    <div id="node-status">Current Node: None</div>
+    <div id="node-status">Current Node: Not configured</div>
   </section>
 
   <section>
@@ -39,45 +39,38 @@
 
 <script>
 const netMintAddress = new solanaWeb3.PublicKey("2wGmLXiJaNCRhKzpvifTywXWHMgA4FETep57DAcmLv41");
-const rpcNodes = [
-  "http://103.50.32.83:8899",
-  "http://186.233.186.148:8899",
-  "http://15.204.161.219:80"
-];
+const rpcUrl = window.OSANVAULT_CONFIG?.solanaRpcUrl || "";
 let connection;
-let currentNode = 0;
 
 function initConnection() {
-  connection = new solanaWeb3.Connection(rpcNodes[currentNode]);
-  document.getElementById("node-status").innerText = "Current Node: " + rpcNodes[currentNode];
-}
-
-async function switchNode() {
-  currentNode = (currentNode + 1) % rpcNodes.length;
-  initConnection();
+  if (!rpcUrl) {
+    document.getElementById("node-status").innerText = "Current Node: Not configured";
+    return false;
+  }
+  connection = new solanaWeb3.Connection(rpcUrl);
+  document.getElementById("node-status").innerText = "Current Node: Configured";
+  return true;
 }
 
 async function connectWallet() {
   try {
+    if (!initConnection()) {
+      throw new Error("A Solana RPC endpoint is not configured.");
+    }
+    if (!window.solana) {
+      throw new Error("A compatible Solana wallet was not detected.");
+    }
     const resp = await window.solana.connect();
     const wallet = resp.publicKey;
     document.getElementById("wallet-address").innerText = "Wallet: " + wallet.toString();
-    initConnection();
     const tokenAccounts = await connection.getParsedTokenAccountsByOwner(wallet, { mint: netMintAddress });
     const balance = tokenAccounts.value.length ? tokenAccounts.value[0].account.data.parsed.info.tokenAmount.uiAmount : 0;
     document.getElementById("net-balance").innerText = "NET Balance: " + balance;
   } catch (err) {
     console.error("Error connecting wallet:", err);
-    await switchNode();
+    document.getElementById("node-status").innerText = "Current Node: Unavailable";
   }
 }
-
-// API Placeholders
-const TELEGRAM_BOT_TOKEN = "7624236697:AAH_WELRZ1sL9f7iGaMNwM4DfLKgFhH3rSI";
-const CLOUDFLARE_API_TOKEN = "9DYEMLE6FXgNCuaPnbD02IlgOm1mxC47EGZ2HeiY";
-const CLOUDFLARE_ZONE_ID = "4ba54edd079497a4ff34fa2d6f8f07a9";
-const CLOUDFLARE_ACCOUNT_ID = "0495acf2003cf86b06054de0d7bf78ce";
-const REAL_ESTATE_API_KEY = "secreta239076407a38bfd574d6ecccfce78d6c11bc9db7a0ed84407be8";
 </script>
 
 <footer>

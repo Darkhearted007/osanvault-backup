@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OsanVault Properties v1",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "name", "location", "price", "rentYield", "image", "tokenized"],
+    "properties": {
+      "id": {"type": "integer"},
+      "name": {"type": "string"},
+      "location": {"type": "string"},
+      "price": {"type": "number", "minimum": 0},
+      "rentYield": {"type": "number"},
+      "image": {"type": "string"},
+      "tokenized": {"type": "boolean"}
+    },
+    "additionalProperties": false
+  }
+}
