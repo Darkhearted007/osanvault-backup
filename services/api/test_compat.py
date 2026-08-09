@@ -4,12 +4,11 @@ import json
 import threading
 import unittest
 from http.client import HTTPConnection
+from http.server import ThreadingHTTPServer
 from pathlib import Path
 
 from compat import snapshot, validate_collection
 from server import ApiHandler
-from http.server import ThreadingHTTPServer
-
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -52,8 +51,9 @@ class ApiRuntimeTests(unittest.TestCase):
         connection.request("GET", path)
         response = connection.getresponse()
         body = response.read()
+        content_type = response.getheader("Content-Type")
         connection.close()
-        return response.status, response.getheader("Content-Type"), body
+        return response.status, content_type, body
 
     def test_health(self) -> None:
         status, content_type, body = self.request("/health")
@@ -63,6 +63,16 @@ class ApiRuntimeTests(unittest.TestCase):
 
     def test_properties_endpoint(self) -> None:
         status, _, body = self.request("/api/v1/properties")
+        self.assertEqual(status, 200)
+        self.assertTrue(json.loads(body))
+
+    def test_users_endpoint(self) -> None:
+        status, _, body = self.request("/api/v1/users")
+        self.assertEqual(status, 200)
+        self.assertTrue(json.loads(body))
+
+    def test_referrals_endpoint(self) -> None:
+        status, _, body = self.request("/api/v1/referrals")
         self.assertEqual(status, 200)
         self.assertTrue(json.loads(body))
 
