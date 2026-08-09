@@ -12,7 +12,10 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 from urllib.parse import urlparse
 
-from compat import snapshot
+try:
+    from .compat import snapshot
+except ImportError:  # pragma: no cover - supports direct script execution
+    from compat import snapshot
 
 
 ROUTES = {
@@ -65,8 +68,6 @@ class ApiHandler(BaseHTTPRequestHandler):
         self._send(405, {"error": {"code": "read_only", "message": "M4 compatibility API is read-only"}})
 
     def log_message(self, format: str, *args: Any) -> None:
-        # Keep the transitional service quiet by default; deployment logging can
-        # be provided by the process supervisor.
         return
 
 
