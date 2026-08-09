@@ -1,0 +1,49 @@
+name: Canonical Foundation Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - feat/osanvault-canonical-foundation
+  push:
+    branches:
+      - feat/osanvault-canonical-foundation
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate M5 staging artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Validate M5 staging artifacts
+        run: python scripts/validate-m5.py
+
+      - name: Run M5 reconciliation preflight
+        run: python scripts/reconcile-m5.py
+
+  api-tests:
+    name: API compatibility tests
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: services/api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Run API compatibility tests
+        run: python -m unittest discover -s services/api -p 'test_*.py' -v
